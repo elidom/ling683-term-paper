@@ -5,6 +5,8 @@
                 ||----w |
                 ||     ||
 
+Final paper for LING-683 (Advanced Quantitative Methods), McGill University, Fall 2021. 
+
 Unfortunately GitHub does not allow uploading large files. Therefore, some data have to be downloaded externally. 
 
 a) Download and add the following file(s) to the '/data' directory:
