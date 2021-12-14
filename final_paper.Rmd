@@ -1,0 +1,755 @@
+---
+title: ""
+date: "`r Sys.Date()`"
+author: "Marcos E. Domínguez Arriola"
+output:
+  rmdformats::robobook:
+    highlight: kate
+bibliography: references.bib
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+<center> <h1>Brain Structural Correlates of the Empathic Response in Psychotherapists: A Bayesian Modelling Approach</h1> </center>
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE,
+               fig.width = 14,
+                      fig.height = 8,
+                      fig.align = "center")
+opts_knit$set(width=75)
+```
+
+## Introduction
+
+Recently, there has been increasing interest in how the adult brain’s plasticity is susceptible to individual differences in social processing capacities. In this context, the effect of empathy has received significant attention. Empathy is defined as an umbrella term that encompasses all processes through which an organism—generally a mammal—can understand others’ affective states through the activation of their own representations of such states (Bernhardt & Singer 2012; De Waal & Preston 2017; Preston & De Waal 2002). Such processes engage a range of brain regions including the amygdala, the cingulate cortex and some prefrontal regions (De Waal & Preston 2017). What is more, some of these regions display structural variations as a function of different empathy measures (Banissy et al. 2012; Eres, Decety & Louis 2015; Uribe, Puig-Davi, Abos et al. 2019). Empathic processes are generally classified into two categories: 1) affective empathy phenomena which are bottom-up processes which depend on the coupling of perception and action, and engage brain regions associated with first-hand affective experience and sensori-motor activity—like insula, amygdala, somatosensory and motor cortices and ventromedial prefrontal cortex (vmPFC); and 2) cognitive empathy phenomena which are top-down, executive processes engaging brain structures that participate in mentalizing and working memory—such as dorsolateral prefrontal cortex (dlPFC), vmPFC, and posterior cingulate cortex (pCC) (Bernhardt & Singer 2012; De Waal & Preston 2017; Engen & Singer 2013). Nonetheless, these distinct empathic processes do not happen independently,  rather, they remain functionally integrated and a real-life empathic response will engage both affective and cognitive empathic phenomena (De Waal & Preston 2017; Zaki et al. 2009). Accordingly, Decety (2011) and his colleagues have proposed that an empathic response consists of three successive components: affective arousal, emotional awareness, and emotion regulation. While the first component represents the bottom-up (“affective”) aspect of the empathic response, its emotion regulation component characterizes the most top-down (“cognitive”) component and permits effective engagement in helping behavior (Decety 2011; Elliot et al. 2011; Lamm, Batson & Decety 2007).  
+
+Psychotherapists usually need to make use of cognitive emotional regulation (Prikhidko & Swank 2018), which is described as a top-down mechanism aimed to modulate the intensity of the emotional experience, or change the emotion itself (e.g. attentional deployment away from, or cognitive reappraisal of, the eliciting stimuli) (Etkin, Büchsel & Gross 2015; Gross 2002; Ochsner & Gross 2005). In contrast to behavioral emotion regulation mechanisms, cognitive mechanisms do not seem to have detrimental effects on cognition and social interaction, probably because the intensity of the emotional experience itself is directly modulated (Gross, 2002). This makes cognitive emotion regulation more suitable for psychotherapists’ empathic responding (Pletzer, Sanchez & Scheibe 2015; Prikhidko & Swank 2018). There is consistent evidence that this kind of regulation is mediated by prefrontal dorsolateral regions (Etkin, Büchel & Gross 2015; Ochsner & Gross 2005), especially in the left hemisphere (Ochsner et al. 2004), and involving to a lesser extent ventrolateral prefrontal and parietal cortices (Etkin, Büchel & Gross 2015). The hypothesis that psychotherapists have an increased empathic capacity has been tested by some research groups, finding evidence that, even though psychotherapists show similar levels of bottom-up emotional reactivity as nontherapists (Hassentab et al. 2007; Pletzer et al. 2015), they display a significantly higher cognitive empathy capacity as measured through behavioral tasks and psychometric scales (Hassentab et al. 2007; Olalde-Mathieu et al. 2020).  
+
+There is evidence that certain brain structures tend to structurally vary as a function of various empathic measures. While affective empathy measures tend to correlate with structural variation in bilateral insula (Banissy et al. 2012; Eres, Decety & Louis 2015), left anterior cingulate cortex (ACC), left precuneus, and left somatosensory cortex (Banissy et al. 2012), cognitive empathy measures correlate with structural variations in structures that comprise the dlPFC (Banissy et al. 2012; Uribe, Puig-Davi, Abos et al. 2019), left cingulate cortex (CC) (Banissy et al. 2012; Eres, Decety & Louis 2015; Uribe, Puig-Davi, Abos et al. 2019), and dorsomedial prefrontal cortex (dmPFC) (Eres, Decety & Louis 2015; Uribe, Puig-Davi, Abos et al. 2019). Previous studies have shown gray matter density variations associated to emotion regulation-related measures in ACC, PCC, dlPFC, dmPFC, supplementary motor area, amygdala, precuneus, superior temporal gyrus (STG), and anterior insula (AI) (Deng et al. 2014; Giuliani et al. 2011).  
+  
+Thus, in this study we seeked to investigate a group of healthy participants that represent a population which stands out for their constant need to modulate their empathic response—and that have shown heightened empathic abilities. Doing so would shed light on the mechanisms underlying effective empathic responding. For this reason, here we wished to determine the cortical thickness  of several brain regions related to empathy/emotion-regulation in psychotherapists compared to a control group. To achieve this, we used the CIVET pipeline to generate a 3-D model of the participants' brain cortex and then utilized a Bayesian framework to model the relationship between group, behavioral measurements and cortical thickness at a series of regions of interest (ROIs).  We hypothesized that psychotherapists, who are in constant demand of modulating their empathic response, would display brain cortical variations in regions engaged in cognitive empathic responding.  
+
+## Data
+### Participants
+Thirty-six participants were recruited for the study, 18 of whom were psychotherapists (9 female; age mean 54.9 ±7.6), who were contacted through their affiliation to a local mental health institution specialized in person-centered psychotherapy. All psychotherapists had a background of more than 19 years of formal education (up to postgraduate studies in clinical psychotherapy) as well as at least six years of professional clinical experience, and were professionally active at the moment of this study. A semi-structured interview with them was conducted in order to ensure that they had the same theoretical orientation (person-centered) and explicitly employed alliance as a main psychotherapeutic tool. The successfully recruited participants constituted virtually the total of suitable psychotherapists affiliated to this school in this part of the country.  
+
+The control group consisted of 18 non-therapists (9 female; age mean 54.7 ±7.6), who were healthy professionals from the different fields specified in the national classification of occupations. As in the first group, all of them had at least 19 years of formal education (up to at least some postgraduate studies in their area of expertise), were professionally active at the moment of this study, and had at least six years of professional experience in their respective fields.  
+
+All participants were right handed, reported no neurological or psychiatric history, and were not taking any psychotropic medication. Each one signed a written informed consent to take part in the study. This project was approved by the ethics committee of the Neurobiology Institute (UNAM), following the Declaration of Helsinki guidelines.  
+
+### Questionnaires  
+Empathic skills were assessed through the interpersonal reactivity index (IRI; Davis 1983), which is subdivided into four independent dimensions: Fantasy (that evaluates the tendency to identify with fictitious characters and situations, e.g. from a book), Perspective Taking (which measures the tendency to actively adopt another person’s point of view in order to understand how they feel), Empathic Concern (that evaluates the tendency to react emotionally to the suffering of the others, with sentiments of compassion, care and concern) and Personal Distress (which measures the tendency to experience distress in stressful interpersonal situations, including emergencies—this subscale is negatively correlated with overall empathic capacity) (Carrazco-Ortiz et al. 2011; Davis 1983; Escrivá et al. 2004). Emotion regulation was assessed by the Emotion Regulation Questionnaire (ERQ). Specifically, this questionnaire evaluates the tendency to adopt Expressive Suppression and Cognitive Reappraisal as emotion modulation strategies (Gross & John 2003; Mauss et al. 2007).  
+
+Moreover, all participants completed the The Toronto Alexithymia Scale (TAS-20) (Bagby et al. 1994), the score of which was used as an exclusion criterion if it suggested pre-clinical or clinical alexithymia. The reason for this is that alexithymic traits have been consistently associated with empathy deficits (Banzhaf et al. 2018; Goerlich et al. 2017). 
+
+### MRI Acquisition
+Structural MRI was performed in a 3 Tesla scanner (General Electric, Waukesha, WI), with a 32-channel array head coil. A whole brain three-dimensional high resolution T1 weighted image was acquired from each participant through a spoiled gradient recalled echo sequence (SPGR) with the following parameters: repetition time (TR) = 8.1ms, echo time (TE) = 3.2 ms, flip angle = 12°, isometric voxel = 1.0 x 1.0 x 1.0 mm3, image matrix  = 256 x 256, FOV = 256, acquisition plane = Sagittal, acceleration factor = 2. 
+
+### Preprocessing  
+A qualitative quality control was performed on each raw MRI volume by trained observers, evaluating four criteria: image sharpness, presence of the ringing artifact, contrast to noise ratio (CNR) on subcortical structures, and CNR around the cortex (Backhausen et al. 2016). In this process, we decided to exclude one volume pertaining to the nontherapists group from further analyses, since it did not display an acceptable quality according to this method. Noise and magnetic field inhomogeneities were corrected using Advanced Normalization Tools (ANTs) (Tustison et al. 2010). Finally, a binary mask was generated for each brain image using the online volBrain 1.0 pipeline (Manjón & Coupé 2016). The resulting masks’ quality were also qualitatively controlled, and small manual corrections were applied where needed. These masks were created for the purpose of feeding them into the utilized pipeline to delete non-brain tissue from the whole head volumes.
+
+We a priori selected regions of interest (ROIs) relevant to cognitive empathy and emotion regulation from the Human Brainnetome Atlas (BNA) (Fan et al. 2016). This was done using the BNA’s Interactive Website Viewer (atlas.brainnetome.org/bnatlas.html), which shows behavioral and paradigm class metadata associated with each region available in the atlas (Fan et al. 2016). Namely, we identified regions associated with the available keyword *social cognition* (which comprises empathic and emotion regulation processes) in the prefrontal and cingulate cortices. We then further restricted this selection according to relevant previous literature on cognitive empathy and emotion regulation (Banissy et al. 2012; De Waal & Preston 2017; Etkin, Büchel & Gross 2015; Ochsner et al. 2004; Ochsner & Gross 2005; Uribe, Puig-Davi, Abos et al. 2019). Next, the corresponding probabilistic maps were downloaded, thresholded, and binarized to serve as ROI masks. The resulting ROIs are:
+
+```{r}
+tab1 <- tibble(region = c("A8dl", "A8dl", "A9/46d", "A23d", "A23v"),
+               hemisphere = c("left", "right", "left", "left", "left"),
+               location = c("superior frontal gyrus", "superior frontal gyrus","middle frontal gyrus", "anterior cingulate gyrus", "posterior cingulate gyrus"),
+               index = c("003", "004", "015", "179", "181"),
+               behavioral_domains = c("Social cognition, emotion, ToM",
+                                      "Social cognition, ToM",
+                                      "Social cognition, action inhibition",
+                                      "Social cognition, emotion",
+                                      "Social cognition, explicit memory"))
+
+tab1 %>% kbl() %>% kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```  
+
+
+### Cortical surface extraction and thickness measurement
+CIVET 2.1.1 (Montreal Neurological Institute at McGill University) was used to extract brain cortical surfaces and estimate cortical thickness at each point of the individual brain. Namely, a 12-parameter affine transformation was applied to each individual preprocessed image, registering it to the MNI ICBM 152 model (Collins et al. 1994). Then a tissue classification was performed, that is, each voxel is assigned to represent white matter (WM), gray matter (GM) or cerebro-spinal fluid (CSF) based on signal intensity and a priori probabilistic models (Tohka et al. 2004; Zijdenbos et al. 1998). The preprocessed T1-weighted volumes  were fed to the pipeline with the individual volBrain (Manjón & Coupé 2016) masks for better segmentation. Next, deformable models are used to create and extract WM and GM surfaces for each hemisphere separately, yielding 40,952 vertices per surface (Kabani et al. 2001; Kim et al. 2005; MacDonald et al. 2000). Then, an estimation of the distances between the internal and the external cortical surfaces are estimated at each vertex; here, the geometrical definition of cortical thickness is given by the linked distance (Lerch & Evans 2005), which is the estimated euclidean distance in millimeters that each of the surface mesh-model vertices had to travel from the inner surface to the outer surface representation.  
+
+## Analysis  
+
+### Exploratory data analysis  
+
+```{r load libraries and data}
+library(tidyverse)
+library(brms)
+library(here)
+library(kableExtra)
+library(grid)
+library(gridExtra)
+library(cowplot)
+library(raincloudplots)
+library(wesanderson)
+library(viridis)
+library(bayesplot)
+library(tidybayes)
+library(emmeans)
+library(ggeffects)
+
+mri <- read_csv(here("data", "cortical_thickness_base.csv"))
+```
+
+```{r plot theme settings}
+good_looking <- theme(
+  plot.title = element_text(family = "Times New Roman", size = 16),
+  plot.subtitle = element_text(family = "Times New Roman", size = 14),
+  axis.title = element_text(family = "Times New Roman", size = 12),
+  axis.text = element_text(family = "Times New Roman", size = 10),
+  legend.text = element_text(family = "Times New Roman", size = 10),
+  panel.grid.minor = element_blank(),
+  panel.grid.major = element_line(color = "gray85"),
+  panel.background = element_rect(fill = "white", colour = "gray20")
+)
+```
+
+```{r custom scaling function}
+# custom scaling function
+
+scale_this <- function(x){
+  (x - mean(x, na.rm=TRUE)) / sd(x, na.rm=TRUE)
+}
+```
+
+```{r wrangle}
+mri <- mri %>%
+  mutate(group = fct_recode(group, Psychotherapists = "TA", `Non-Therapists` = "NT"),
+         idx = factor(idx),
+         age = scale_this(age),
+         sex = factor(sex),
+         IRI.FS = scale_this(IRI.FS),
+         IRI.PT = scale_this(IRI.PT),
+         IRI.EC = scale_this(IRI.EC),
+         IRI.PD = scale_this(IRI.PD),
+         ERQ.Supre = scale_this(ERQ.Supre),
+         ERQ.Reev = scale_this(ERQ.Reev))
+```  
+
+The following raincloud plot (Allen et al. 2019) displays each group's psychometric scores in the interpersonal reactivity index (IRI) and the emotion regulation questionnaire (ERQ). Raincloud plots are useful in presenting a very complete picture of the data distribution. Boxplots represent the median scores with their respective first and third quartiles.   
+```{r raincloud plot}
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+
+pal <- c("#1F441E", "#9B3675")
+
+raincloud_theme <- theme(
+  text = element_text(size = 10, family = "Times New Roman"),
+  axis.title.y = element_text(size = 28, family = "Times New Roman"),
+  axis.text = element_text(size = 16, family = "Times New Roman"),
+  axis.text.x = element_blank(),
+  legend.title = element_text(size = 16, family = "Times New Roman"),
+  legend.text = element_text(size = 22, family = "Times New Roman"),
+  legend.position = "right",
+  plot.title = element_text(lineheight = .8, face = "bold", size = 16, family = "Times New Roman"),
+  panel.border = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.grid.major = element_blank(),
+  axis.line.x = element_line(colour = "black", size = 0.5, linetype = "solid"),
+  axis.line.y = element_line(colour = "black", size = 0.5, linetype = "solid"))
+
+rain_cloud_plotter <- function(y_var, y_var_name, legend = c(FALSE, TRUE)){
+  if (legend == FALSE) {
+    g2 <-
+    ggplot(data = mri,
+    aes(x = group, y = {{y_var}}, fill = group)) +
+    geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+    geom_point(aes(color = group), size = 2, position = position_jitter(width = .15), size = .5, alpha = 1) +
+    geom_boxplot(width = .05, outlier.shape = NA, alpha = 0.3) +
+    scale_fill_manual(values = pal) +
+    scale_color_manual(values = pal) +
+    ylab(y_var_name) +
+    xlab("") +
+    guides(fill = FALSE) +
+    guides(color = FALSE) +
+    theme_bw() +
+    raincloud_theme
+  } else{
+    g2 <-
+    ggplot(data = mri,
+    aes(x = group, y = {{y_var}}, fill = group)) +
+    geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+    geom_point(aes(color = group), size = 2, position = position_jitter(width = .15), size = .5, alpha = 1) +
+    geom_boxplot(width = .05, outlier.shape = NA, alpha = 0.3) +
+    scale_fill_manual(values = pal) +
+    scale_color_manual(values = pal) +
+    ylab(y_var_name) +
+    xlab("") +
+    guides(fill = FALSE) +
+    theme_bw() +
+    raincloud_theme +
+    theme(legend.position = "right",
+    legend.background = element_rect(fill = "white"),
+    legend.text = element_text(color = "black", family = "Times New Roman", size = 20),
+    legend.title = element_blank())
+  }
+  return(g2)
+}
+
+
+p1 <- rain_cloud_plotter(IRI.PT, "IRI: Perspective Taking")
+p2 <- rain_cloud_plotter(IRI.FS, "IRI: Fantasy")
+p3 <- rain_cloud_plotter(IRI.EC, "IRI: Empathic Concern", TRUE)
+p4 <- rain_cloud_plotter(IRI.PD, "IRI: Personal Distress")
+p5 <- rain_cloud_plotter(ERQ.Supre, "ERQ: Supression")
+p6 <- rain_cloud_plotter(ERQ.Reev, "ERQ: Reevaluation", TRUE)
+
+plot_grid(p1,p2,p3,p4,p5,p6, ncol = 3
+          , rel_widths = c(1, 1, 2,1, 1, 2)
+          ) +
+  panel_border(remove = TRUE)
+```  
+
+The raincloud plot suggests that psychotherapists and non-therapists may have responded differently to some subscales. It will be of interest in the upcoming statistical modelling whether these are able to predict to any degree brain cortical group differences between the groups. On the other hand, the following wheel plot suggests that there is an amount of random variability across participants as well as across brain regions. This serves to motivate random effects modelling in the upcoming section.  
+  
+```{r wheel plot, fig.width=15, fig.height=15}
+mri_long <- mri %>% 
+  select(-where(is.logical)) %>% 
+  drop_na() %>%
+  pivot_longer(cols = r001:r238,
+               names_to = "region",
+               values_to = "mean_thickness")
+
+mri_long %>% 
+  ggplot(aes(x = reorder(idx, mean_thickness), 
+             y = reorder(region, mean_thickness), 
+             fill = mean_thickness)) +
+  scale_fill_gradientn(colors = mako(10)) +
+  labs(x = "Participant", y = "Brain region", fill = "",
+       title = "Mean cortical thickness (mm)", subtitle = "by subject, by brain region") +
+  geom_tile() +
+  good_looking +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid.major = element_blank()
+    ) + coord_polar()
+```  
+
+Finally, the following tile plots have the only purpose of showing that participants in both groups display a similar pattern of cortical thickness across brain regions. This is manifest in the observed fact that there are not salient differences to be seen between groups.  
+
+```{r tile plots}
+tile_ta <- mri_long %>% 
+  mutate(mean_thickness = scale_this(mean_thickness),
+         mean_thickness = case_when(
+           mean_thickness > 3.124 ~ 3.124,
+           mean_thickness < -4.54 ~ 4.54,
+           TRUE ~ mean_thickness
+         )) %>%
+  filter(group == "Psychotherapists") %>% 
+  ggplot(aes(x = reorder(idx, mean_thickness), 
+             y = reorder(region, mean_thickness), 
+             fill = mean_thickness)) +
+  geom_tile() +
+  labs(x = "Participant", y = "Brain region", fill = "", title = "Therapists") +
+  scale_fill_gradientn(colors = magma(10)) +
+  good_looking +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid.major = element_blank(),
+    legend.position = "none",
+    plot.title = element_text(hjust = .5)
+    )#; tile_ta
+
+tile_nt <- mri_long %>% 
+  mutate(mean_thickness = scale_this(mean_thickness),
+         mean_thickness = case_when(
+           mean_thickness > 3.124 ~ 3.124,
+           mean_thickness < -4.54 ~ 4.54,
+           TRUE ~ mean_thickness
+         )) %>% 
+  filter(group == "Non-Therapists") %>% 
+  ggplot(aes(x = reorder(idx, mean_thickness), 
+             y = reorder(region, mean_thickness), 
+             fill = mean_thickness)) +
+  geom_tile() +
+  labs(x = "Participant", y = "", fill = "", title = "Non-Therapists") +
+  scale_fill_gradientn(colors = magma(10)) +
+  good_looking +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid.major = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+    )#; tile_nt
+
+
+plot_grid(tile_ta, tile_nt, ncol = 2, rel_widths = c(1, 1.15))
+```
+
+### Modelling  
+
+#### Prior predictive check  
+
+The priors I decided to use for the main models are intended to be weakly informative (Lemoine, 2019). In concordance with previous literature on the mean cortical thickness thickness estimated by the software used and its variability, it was decided to use a prior of $\mu = 3.0 mm$ and $\sigma = 0.6mm$ for the Intercept (Martínez et al. 2015). As for the $\beta$ coefficient prior, a normal distribution centered around 0 was chosen since a group effect on cortical thickness could take either direction. The standard distribution here was specified to be $0.3 mm$, because it represents a common amount of variability between two groups in previous studies (e.g. Bermudez et al. 2009; Emami et al. 2016). The following prior predictive plot displays the result of choosing these parameter values.  
+
+```{r prior predictive check}
+set.seed(99)
+n_lines <- 400
+
+tibble(n = 1:n_lines,
+       a = rnorm(n_lines, mean = 3, sd = 0.6),
+       b = rnorm(n_lines, mean = 0, sd = 0.3)) %>% 
+  expand(nesting(n, a, b), group = c(0,1)) %>% 
+  mutate(thick = a + b * group,
+         group = factor(group, labels = c("Psychotherapists", "Non-therapists"))) %>% 
+  ggplot(aes(x = group, y = thick, group = n, color = as.numeric(group) * b)) +
+  geom_line(alpha = 0.2) +
+  geom_point(alpha = 0.5) +
+  scale_color_gradient2(mid = "#f000ff",
+                       high = "#001eff",
+                       low = "#ffe700",
+                       midpoint = -.5) +
+  labs(title = "Prior predictive check", 
+       y = "Cortical thickness (mm)",
+       x = "") +
+  good_looking +
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank()) 
+```
+
+#### Model 1
+
+First, a multivariate linear regression model was fit to examine the effect of group on each of the ROIs. This model is relatively simple and is intended to be a first approach to group differences. Namely it intends to get us started with the question of, without accounting for age and sex, how do the five ROIs differ from one group to another. A multivariate model is useful here in order to be able to model the five response variables at the same time, and obtain estimates of their residual correlation. In particular, the model formula takes the form **Cortical Thickness ~ 1 + group**.
+
+```{r summary table}
+m1_mri <- brm(mvbind(r003, r004, r015, r181, r175) ~ 1 + group,
+              family = gaussian,
+              prior = c(prior(normal(3, 0.6), class = Intercept),
+                        prior(normal(0, 0.3), class = b)
+              ),
+              data = mri, chains = 4, cores = 4,
+              iter = 2000, warmup = 1000,
+              save_pars = save_pars(all = TRUE),
+              file = "models/mri_m1_final.brm")
+
+m1_mri_diff <- brm(mvbind(r003, r004, r015, r181, r175) ~ 1 + group,
+              family = gaussian,
+              prior = c(prior(normal(3, 0.6), class = Intercept),
+                        prior(normal(0, 0.3), class = b)
+              ),
+              data = mri, chains = 4, cores = 4,
+              iter = 1000, warmup = 500,
+              save_pars = save_pars(all = TRUE),
+              file = "models/mri_m1_final_diff.brm")
+
+summary(m1_mri)
+```
+
+```{r posterior 1, fig.height=15}
+pp_check_2 <- function(region, color, lab, ndraws = 400){
+  color_scheme_set(color)
+  pp_check(m1_mri, 
+           type = "violin_grouped", 
+           group = "group", 
+           resp = region, 
+           ndraws = ndraws) +
+    scale_y_continuous(limits = c(2,4.5)) +
+    annotate(geom = "text", x = 1.5, y = 4.5, label = lab,
+             hjust = .5, vjust = 1)
+    
+}
+
+
+ppa1 <- pp_check_2("r003", "brightblue", "Region 003")
+ppa2 <- pp_check_2("r004", "purple", "Region 004")
+ppa3 <- pp_check_2("r015", "pink", "Region 015")
+ppa4 <- pp_check_2("r181", "yellow", "Region 181")
+ppa5 <- pp_check_2("r175", "green", "Region 175") # use appropriate region names!
+
+plot_grid(ppa1, ppa2, ppa3, ppa4, ppa5, nrow = 3)
+``` 
+
+These posterior predictive plots show that the model is producing not bad a fit. It is the case that the model is producing posterior distributions that roughly correspond to the original data. It is interesting to see at this point (although it must be confirmed through other means; see below) that in some of brain regions the posterior distributions seem to be shifted across groups, suggesting that there may to some extent be group differences in cortical thickness -- e.g. at the region indexed 015.  
+
+Now, to directly address the main question of whether there are differences to be found between the two groups the corresponding variables can be extracted from the model and their corresponding posterior distribution visualized in a number of ways. The halfeye plot is useful in visualizing the distributions in relation to one another. In this figure it can bee seen how different is the posterior distribution at each region between psychotherapists and non-therapists. 
+
+```{r halfeye plot}
+m1_mri %>% 
+  spread_draws(b_r003_groupPsychotherapists, b_r004_groupPsychotherapists, b_r015_groupPsychotherapists,
+               b_r181_groupPsychotherapists, b_r175_groupPsychotherapists) %>% pivot_longer(b_r003_groupPsychotherapists:b_r175_groupPsychotherapists,
+                   names_to = "region", values_to = "value") %>% 
+  ggplot(aes(y = region, x = value, fill = region)) +
+  stat_halfeye() +
+  scale_fill_manual(values = wes_palette("Darjeeling1", 5)) +
+  labs(x = "", 
+       y = "Variable", 
+       title = "Posterior distributions. How different are groups?", 
+       subtitle = "Psychotherapists relative to non-therapists") +
+  geom_vline(xintercept = 0, lty = 2) +
+  good_looking +
+  theme(legend.position = "none")
+```  
+
+Notably, the 95% confidence interval of posterior distribution corresponding to the dlPFC (015) brain region does not overlap with 0, suggesting that there exists a difference between the two groups in this region. However, there remains a degree of uncertainty, as a small portion of the distribution still overlaps with 0. It is also worth noting that all the five posterior distributions are to be found to the right. This points to the direction of the effect; namely, whatever effect size there is, psychotherapists display a greater cortical thickness than non-therapists in brain regions associated with empathic responding. Having noted that, it is a good occasion to explore the interaction between posterior distribution pairs. 
+
+```{r 2D}
+m1_mri %>% 
+  spread_draws(b_r003_groupPsychotherapists, b_r004_groupPsychotherapists, b_r015_groupPsychotherapists,
+               b_r181_groupPsychotherapists, b_r175_groupPsychotherapists) %>% 
+  ggplot(aes(x = b_r015_groupPsychotherapists, y = b_r181_groupPsychotherapists)) +
+  geom_hex() +
+  geom_vline(xintercept = 0, lty = 2) +
+  geom_hline(yintercept = 0, lty = 2) +
+  scale_fill_gradientn(colors = cividis(10)) +
+  good_looking
+```  
+
+The combined posterior distribution shows an amount of uncertainty with which it can be asserted that there is a cortical thickness difference between the two groups. Namely, there is a moderate amount of uncertainty.   
+
+```{r}
+hypothesis(m1_mri, "r015_groupPsychotherapists > 0")
+```  
+
+Performing a hypothesis test with brms::hypothesis reveals that there is significantly more evidence in favor of psychotherapists having a greater cortical thickness in the dlPFC ROI than the opposite (non-therapists displaying the greater cortical thickness).  
+  
+To further explore this effect, it is worth performing a series of hypothesis tests now. First, I am to run an equivalent model just without the *group* predictor in order to be able to compare them and determine its contribution to the model. The way to achieve this will be to perform an approximate leave-one-out (loo) cross-validation based on the model's posterior likelihood.   
+
+```{r}
+m1_mri_diff <- brm(mvbind(r003, r004, r015, r181, r175) ~ 1,
+                   family = gaussian,
+                   prior = c(prior(normal(3, 0.6), class = Intercept)#,
+                             # prior(normal(0, .5), class = b)
+                             #, prior(exponential(1), class = sd)
+                   ),
+                   data = mri, chains = 4, cores = 4,
+                   iter = 2000, warmup = 1000,
+                   file = "models/mri_m1_final_diff.brm")
+```
+
+```{r}
+m1_mri <- add_criterion(m1_mri, criterion = "loo")
+m1_mri_diff <- add_criterion(m1_mri_diff, criterion = "loo")  
+
+(comp <- loo_compare(m1_mri, m1_mri_diff, criterion = "loo")) # m1_mri_diff is the best (?)
+```  
+  
+It seems from these results that the *group* variable does not add any overall predicting value to the model. While it may be the case that belonging to one group or the other does not play any role in the model, this may be due to the simplicity of it, and it does not imply that there actually is no difference between the two groups. To explore this, the next model will be substantially more complex, taking into account not only each individual data point (instead of the ROI means), but also varying effects for participant and brain coordinate.  
+
+### Model 2
+As mentioned, the second model built for this paper includes more datapoints (one for each vertex in the brain cortex polygon mesh model) and considers varying effects for participant and vertex; that said, priors will remain the same. The model takes the formula __Cortical Thickness ~ Region * Group + (1 + region | idx) + (1 + group | cid)__. Note that now the variable *Region* is a predictor variable, instead of having a multivariate model.
+
+```{r}
+m2_mri <- brm(thck ~ region * group + (1 + region | idx) + (1 + group | cid),
+              family = gaussian,
+              prior = c(prior(normal(3, 0.6), class = Intercept),
+                        prior(normal(0, 0.3), class = b)
+                        , prior(exponential(1), class = sd)
+              ),
+              data = subset_mri_5, chains = 4, cores = 4,
+              iter = 4000, warmup = 2000,
+              file = "models/mri_m2_randeff_final.brm")
+
+m2_mri_diff <- brm(thck ~ region + (1 + region | idx) + (1 | cid),
+              family = gaussian,
+              prior = c(prior(normal(3, 0.6), class = Intercept),
+                        prior(normal(0, 0.3), class = b)
+                        , prior(exponential(1), class = sd)
+              ),
+              data = subset_mri_5, chains = 4, cores = 4,
+              iter = 4000, warmup = 2000,
+              file = "models/mri_m2_randeff_final_diff.brm")
+```
+
+```{r eval=FALSE}
+# I could not run this on my own computer (R session crashes). This will be the case whenever I add a saved plot instead of actually plotting.
+color_scheme_set("brightblue")
+p1 <- pp_check(m2_mri, type = "dens_overlay_grouped", group = "group", ndraws = 1000) + good_looking
+ggsave("plots/m2_ppc1.png", width = 6, height = 5, units = "cm")
+```  
+
+![Posterior predictive check: By group](/home/elidom/Documents/R/Statistics/plots/m2_ppc1.png)    
+
+```{r eval=FALSE}
+color_scheme_set("yellow")
+p1 <- pp_check(m2_mri, type = "dens_overlay_grouped", group = "region", ndraws = 1000) + good_looking
+ggsave("plots/m2_ppc2.png", width = 6, height = 5, units = "cm")
+```   
+
+![Posterior predictive check: By brain region](/home/elidom/Documents/R/Statistics/plots/m2_ppc2.png) 
+
+A posterior predictive simulation (1000 draws) shows that the fit is quite good overall. In other words, the added complexity of both the data and the model payed off by yielding greater predictive results with less uncertainty. Note, however, that on the right panel the posterior draws do not capture a peak around the mean that characterized the actual data. Hence, there is some room for improvement which I will try to address below (see next model).  
+  
+Calculating the estimated marginal means (EMMs) should help answer the present research questions in light of the new varying effects model. This will be done using two 95% and 89% confidence intervals:
+```{r emmeans, message=TRUE}
+(emm <- emmeans(m2_mri, ~ group | region))
+```  
+
+```{r confint, message=TRUE}
+confint(emm, adjust = "none", level = 0.89)
+
+# I would have liked to plot this instead of only showing the emmeans output, but I could not do it in my laptop (lack of power; weirdly, I could only see the emmeans output by knitting the html) nor in Compute Canada (the required libraries were not installed -- emmeans / ggeffects)
+```  
+
+Note that we see a similar pattern as with the previous model: (a) in the case of all regions there is a degree of overlap between psychotherapists' and non-therapists confidence interval, although with 89% C.I. this barely is the case; and (b) In all cases psychotherapists' posterior distributions are higher in the x-axis that those of non-therapists, suggesting again the likely direction of whatever effect there is across groups.  
+  
+Now, in order to test the hypothesis that psychotherapists display a greater cortical thickness at one or more of the ROIs, there are two things that must be done. First, I will utilize the previous estimated marginal means and perform pairwise comparisons.  
+
+```{r pirs}
+pairs(emm)
+```  
+
+<!-- # ```{r halfeye plot mod 2} -->
+<!-- # # assess differences between regions -->
+<!-- # m2_mri %>% spread_draws(`b_.*`, regex = TRUE) %>%  -->
+<!-- #   pivot_longer("b_groupPsychotherapists":"b_region181:groupPsychotherapists", -->
+<!-- #                    names_to = "region", values_to = "value") %>%  -->
+<!-- #   ggplot(aes(y = region, x = value, fill = region)) + -->
+<!-- #   stat_halfeye() + -->
+<!-- #   scale_fill_manual(values = wes_palette("Moonrise3", 5)) + -->
+<!-- #   labs(x = "mm",  -->
+<!-- #        y = "Parameters",  -->
+<!-- #        title = "Posterior cortical thickness predictions") + -->
+<!-- #   #geom_vline(xintercept = mean(mri_long$mean_thickness), lty = 2) + -->
+<!-- #   good_looking + -->
+<!-- #   theme(legend.position = "none") -->
+<!-- # ```  
+I think this does not make sense (plotting the interaction variables this way)
+--> 
+
+This test yields (some) evidence that there is in fact a difference between the two groups in the dlPFC region (indexed 015).  
+
+Finally, as was done in the previous section, an equivalent varying effects model is fitted, this time without the group predictor, in order to reveal whether the psychotherapist status adds any predictive value to the model through a LOO cross-validation. This are the resulting values: 
+
+```{r loocomp2, eval=FALSE}
+m2_mri <- add_criterion(m2_mri, criterion = "loo")
+m2_mri_diff <- add_criterion(m2_mri_diff, criterion = "loo")
+
+comp <- loo_compare(m2_mri, m2_mri_diff, criterion = "loo")
+
+# Unfortunately I was unable to run this in my laptop too, so I ran it on Compute Canada and I will just print the output numbers next.
+```
+
+
+```{r LOO import}
+
+loodf <- data.frame(elpd_diff = c(0.0, -133.8),
+                       se_diff = c(0.0, 20.3))
+
+row.names(loodf) <- c("m2_mri (Original)", "m2_mri_diff (No Group var)")
+
+kbl(loodf) %>% kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```  
+  
+Which consistently says that the group variable does add value to the model. In other words, given these data and this degree of model complexity, the two groups seem to show different cortical features in brain regions associated with empathic capacity.   
+
+#### Model 3  
+
+Finally, this third model will include sociodemographic and psychometric predictors. The theory goes that certain enhanced cognitive functions could be reflected as cortical thickness variations; thus, it may be the case that cortical thickness at the present ROIs varies as a function of empathic responding skills as measured by the IRI and ERQ. Moreover, it is a known fact that there exist cortical feature variability across age groups and sexes.  
+  
+This model takes the form: __Cortical Thickness ~ Psychometrics + Demographics + Region x Group + (1 + Region | Subject) + (1 + Group + Psychometrics + Demographics + Group | Vertex)__; where *demographics* includes the variables *sex* and *gender*, and *psychometrics* include the 4 IRI and 2 ERQ subscales. Note that these may be too many predictors for a not large amount of participants in the study (n = 35). Therefore, a special kind of prior is required in order to prevent the emergence of spurious effects. In this kind of cases, some sort of dimensionality reduction becomes quite useful. This can be achieved through shrinkage priors, such as **The Horseshoe Prior** (Carvalho, Polson & Scott, 2009). While it provides the prior with flat, Cauchy-like tails that allow for strong predictors to exert the right effect on $y$, it possesses an infinitely tall spike at the origin, endowing the zero elements of $\beta$ with severe shrinkage (Carvalho et al., 2009); this helps prevent spurious effects from the many predictors in a complex model like the present one.  
+
+Lastly, in the context of varying effects, when there is more than one group-level effect per grouping factor (as is the case here), the correlations among varying effects need to be accounted for. The way to achieve this is through a Lewandowski-Kurowicka-Joe (LKJ) prior.  
+
+```{r model3fit, eval=FALSE}
+m3_mri_hs <- brm(thck ~ region*group+age+sex+IRI.FS+IRI.PT+IRI.EC+IRI.PD+
+                   (1+region|idx)+(1+group+age+sex|cid),
+                 family = gaussian,
+                 prior = c(prior(normal(3, .15), class = Intercept),
+                           prior(horseshoe(1), class = b), 
+                           prior(exponential(1), class = sigma),
+                           prior(lkj(1), class = cor)),
+                 data = subset_mri_5, chains = 4, cores = 4,
+                 iter = 8000, warmup = 4000,                # Rhat estimates are good
+                 file = "models/mri_m3_hs_5_full.brm")
+
+m3_mri_hs_diff <- brm(thck ~ region+age+sex+IRI.FS+IRI.PT+IRI.EC+IRI.PD+
+                   (1|idx)+(1+age+sex|cid),
+                 family = gaussian,
+                 prior = c(prior(normal(3, .15), class = Intercept),
+                           prior(horseshoe(1), class = b), 
+                           prior(exponential(1), class = sigma),
+                           prior(lkj(1), class = cor)),
+                 data = subset_mri_5, chains = 4, cores = 4,
+                 iter = 8000, warmup = 4000,
+                 file = "models/mri_m3_hs_5_full_diff.brm")
+```
+
+```{r eval=FALSE}
+color_scheme_set("yellow")
+p1 <- pp_check(m3_mri_hs, type = "dens_overlay_grouped", group = "group", ndraws = 1000) + good_looking
+ggsave("plots/m3_ppc1-2.png", width = 12, height = 10, units = "cm")
+```  
+
+![Posterior predictive check - density plot: By group](/home/elidom/Documents/R/Statistics/plots/m3_ppc1-2.png)    
+
+![Posterior predictive check - violin plot: By group](/home/elidom/Documents/R/Statistics/plots/viol_mod_3-2.png)
+
+```{r eval=FALSE}
+color_scheme_set("green")
+p2 <- pp_check(m3_mri_hs, type = "dens_overlay_grouped", group = "region", ndraws = 1000) + good_looking
+ggsave("plots/m3_ppc2.png", width = 6, height = 5, units = "cm")
+```   
+
+![Posterior predictive check - density plot: By brain region](/home/elidom/Documents/R/Statistics/plots/m3_ppc2-2.png)    
+
+![Posterior predictive check - violin plot: By brain region](/home/elidom/Documents/R/Statistics/plots/viol_mod_3-3.png)    
+
+What the corresponding posterior predictive checks (PPC) show here is roughly the same as with the second model. While the plots show a decent fit, they also show that certain patterns could not be captured by the model. It is interesting, though, to point out what these patterns are: In the first plot, it is a peak corresponding to the psychotherapists group; in the third plot, it is a peak corresponding to dlPFC region (indexed 015). It is very likely the case that these are related, which is relevant to the present research question.  
+  
+Just as before, it should prove useful to calculate the estimated marginal means by group and region of this model and look for meaningful effects.
+```{r emmeans3, eval=FALSE}
+(emm3 <- emmeans(m3_mri_hs, ~ group | region))
+
+pairs(emm3)
+
+# I couldn't run this cell anywhere
+```  
+
+I am also interested in finding out whether the *group* variable adds any predictive power to this complex model. As before, an equivalent model is fit without this variable and a LOO comparison is performed.  
+```{r eval=FALSE}
+m3_mri_hs <- add_criterion(m3_mri_hs, criterion = "loo")
+m3_mri_hs_diff <- add_criterion(m3_mri_hs_diff, criterion = "loo")
+
+loo_compare(m3_mri_hs, m3_mri_hs_diff)
+
+# can't run in my laptop
+```  
+
+```{r}
+loodf3 <- data.frame(elpd_diff = c(0.0, -25763.3),
+                     se_dff = c(0.0, 194.0))
+row.names(loodf3) <- c("m3_mri (Original)", "m3_mri (No group variable)")
+loodf3 %>% 
+  kbl() %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```  
+
+Clearly, the *group* variable is quite important for this model. An interpretation is that, in such a more complex model, much of the variability that cannot be explained by the group variable is accounted for by the other predictors, and the model seems to be much more certain of the added value provided the *group* variable itself.  
+  
+I may finally be worth comparing the second and the third model.
+
+```{r}
+loodf3v2 <- data.frame(elpd_diff = c(0.0, -298.5),
+                     se_dff = c(0.0, 31.0))
+row.names(loodf3v2) <- c("Third model", "Second model")
+loodf3v2 %>% 
+  kbl() %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```  
+
+Here again, we confirm that the third model, with the demographic and behavioral information, as well as with a horseshoe prior, displays a better performance than the second model.  
+
+<!-- Note that when I try using bayes_factor() both in the cluster and in my laptop I get the error *Error: Bridgesampling failed. Perhaps you did not set 'save_pars = save_pars(all = TRUE)' when fitting your model?*. This does not get fixed by adding the sabe_pars argument as suggested. Other people in the internet who have encountered the same problem have not found a solution other than reinstalling rstan (https://discourse.mc-stan.org/t/call-error-when-using-bayes-factor/10122). Therefore, I decided not to perform this computation. -->
+
+## Discussion 
+
+The aim of this study was to investigate cortical thickness variations associated with greater empathic capacity in a sample of professional psychotherapists and a control group, through a Bayesian regression modelling approach. Namely, a series of three models of increasing complexity were built in order to thoroughly assess the role of several variables (group, age, psychometric scores, demographics, etc.) in predicting cortical thickness estimates at various brain regions of interest.  
+
+The first model was fitted using the mean cortical thickness estimates at each region of interest and had only one predictor: group. This model already yielded some evidence that there was an effect to be found, although not very robustly. Interestingly enough, it also suggested—with fairly much uncertainty though—that there exists an overall positive association between the status of being a psychotherapist and the cortical thickness at the ROIs considered. These effects, though, needed further exploration in more detail, especially since a comparison with a model without the group predictor yielded the notion that it does not add any predictive value to the model.  
+
+The second model considered varying effects as well as more complex data. Namely, instead of dealing with cortical thickness averages, it dealt with individual measures of cortical thickness (corresponding each to one vertex in the mesh model produced by CIVET); further, it accounted for the varying effects of subject and vertex, as these are expected to possess some random variation. The results from this model reinforced the notion that there is in fact a group effect in the model. First of all, as mentioned above, the model accomplishes a decent fit to the actual data, with the exception of a peak characterizing psychotherapists' and dlPFC' (region indexed 015) original data. In other words, even though the fit seems quite decent, the model seems to fail to capture that feature of the actual data. Nevertheless, the estimated marginal means again suggest there is an overall positive association between the status of being a psychotherapist and cortical thickness at the ROIs. Moreover, they point to a meaningful effect in the dlPFC ROI (indexed 015). Finally, this model proved the group variable to be of predictive value.   
+
+As stated above, the third model in this work differs from the second model in that it considers many more predictors and, in order to prevent spurious effects from emerging, horseshoe priors (Carvalho et al., 2009). This model achieves roughly the same fit to the original data when visually inspecting the model posterior distributions. However, this model seems to capture the effect of group more precisely, because comparing the model with its no-group equivalent yields a striking difference. Thus, in this model that considers the role of many more variables *group* seems to have a prominent effect. The specific effects of other variables were not explored for the sake of space and time, and because they were not essential to the hypothesis. It must be noted, though, that the coefficients pertaining to the psychometric tests, none of them display a meaningful effect without too much uncertainty.   
+
+In sum, these models revealed that psychotherapists may display distinct brain cortical features, especially in the left dorsolateral prefrontal cortex. In general, a group of psychotherapists tended to show a greater brain cortical thickness in regions related to empathic processing and modulation.  This association is especially meaningful when demographic and behavioral variables are accounted for in the model, pointing to their relevance in modulating the main effect of interest.  
+
+The posterior draws confirmed that a linear regression was a good choice of model given the nature of the data (i.e. distributed in a roughly normal way). Although this method could not account for some features of the actual data (see above), this did not seem to affect the suitability of the models. A few limitations should be mentioned at this point: (a) Even though there were many data points per subject, the participant sample was too little to get rid of much uncertainty and be able to generalize these results. This study, thus, should motivate future undertakings in exploring these and related research questions in more depth. (b) Given a number of technical limitations (contact author for details), a potentially important step in hypothesis testing could not be performed; namely, estimating bayes factors for model comparison. Hopefully, though, LOO model comparisons could convey the relevant infomation in this regard. Additionally, the author has (very) recently discovered a way to perform the bayes factor estimation, but it will unavoidably take several more days as it involves refitting most models in this study. As soon as this is done, this document will be updated with the results. (c) Even though it seems interesting enough to determine that the psychometric scores do help to elucidate the particular role of the main effect of interest (group), it could be worthwhile to thoroughly inspect the role and impact of each psychometric score; however, given the small amount of participants, caution must be taken not to fall in errouneous interpretations.
+
+
+
+
+
+
+
+<!-- This appendix simply contains code that was relevant in building the data frame but that was not necessary anymore in the actual document. -->
+```{r Appendix, eval=FALSE}
+# Buildng the dataframe
+library(readr)
+library(tidyr)
+library(forcats)
+library(dplyr)
+library(brms)
+
+mri <- read_csv(file.path("data", "cortical_thickness_base.csv"))
+
+# wrangle
+mri <- mri %>%
+  mutate(group = fct_recode(group, Psychotherapists = "TA", `Non-Therapists` = "NT"),
+         idx = factor(idx),
+         age = scale_this(age),
+         sex = factor(sex)) 
+
+# expand grid to appropriate length
+mri_2 <- mri %>% expand_grid(cid = 1:40962)
+
+# Left hemisphere
+dfff <- tibble(l_idx = 0, l_thickness = NA)
+for (subj in mri$idx) {
+  temp <- read_csv(file.path("data", "c_thickness", 
+                        paste("TA_", subj, "_native_rms_rsl_tlink_30mm_left.txt", sep = "")),
+                   col_names = "l_thickness")
+  temp_2 <- cbind(l_idx = rep(as.character(subj), nrow(temp)), temp)
+  dfff <- rbind(dfff, temp_2)
+}
+
+dfff <- dfff[-1,]
+
+mri_3 <- cbind(mri_2, dfff)
+
+# Right hemisphere
+dfff <- tibble(r_idx = 0, r_thickness = NA)
+for (subj in mri$idx) {
+  temp <- read_csv(file.path("data", "c_thickness", 
+                        paste("TA_", subj, "_native_rms_rsl_tlink_30mm_right.txt", sep = "")),
+                   col_names = "r_thickness")
+  temp_2 <- cbind(r_idx = rep(as.character(subj), nrow(temp)), temp)
+  dfff <- rbind(dfff, temp_2)
+}
+
+dfff <- dfff[-1,]
+mri_4 <- cbind(mri_3, dfff)
+
+# get region identifiers from masks
+
+init <- tibble(l_region = rep(NA, 40962),
+               r_region = rep(NA, 40962))
+
+for (number in sprintf("%03d", 1:246)) {
+  temp <- read_csv(file.path("data", "c_thickness", "bin_masks", paste("binary_mask_", number, "_60.txt", sep = "")),
+                   col_names = "is_reg")
+  if (as.numeric(number) %% 2 == 1) {
+    init$l_region <- ifelse(temp$is_reg != 0, number, init$l_region)
+  } else {
+    init$r_region <- ifelse(temp$is_reg != 0, number, init$r_region)
+  }
+}
+
+# merge dfs
+mri_5 <- cbind(mri_4, 
+               l_region = factor(rep(init$l_region, length(unique(mri_4$idx)))),
+               r_region = factor(rep(init$r_region, length(unique(mri_4$idx))))) %>% 
+  mutate(IRI.FS = scale_this(IRI.FS),
+         IRI.PT = scale_this(IRI.PT),
+         IRI.EC = scale_this(IRI.EC),
+         IRI.PD = scale_this(IRI.PD),
+         ERQ.Reev = scale_this(ERQ.Reev),
+         ERQ.Supre = scale_this(ERQ.Supre),
+         cid = factor(cid))
+
+# mri_6 <- mri_5 %>% 
+#   select(-where(is.logical)) %>% 
+#   drop_na()
+```
+
+## References
+
+---
+nocite: '@*'
+---

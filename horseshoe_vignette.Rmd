@@ -1,0 +1,181 @@
+---
+title: "Horseshoe Prior"
+author: "Marcos E. Dominguez Arriola"
+date: "December 2021"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+## Introduction  
+
+There are times when we have too many predictor variables to fit in our regression models not to be reasonably worried about spurious results. In this kind of of complex models, some sort of dimensionality reduction is indispensable, and a common way to achieve this is through shrinkage priors (Carvalho, Polson & Scott, 2009). **The Horseshoe Prior** is a useful tool in these cases. While it provides the prior with flat, Cauchy-like tails that allow for strong predictors to exert the right effect on $y$, it possesses an infinitely tall spike at the origin, endowing the zero elements of $\beta$ with severe shrinkage (Fig 1; Carvalho et al., 2009); this helps prevent spurious effects from the many predictors.  
+
+![Fig. 1 (from Carvalho et al., 2009)](/home/elidom/Documents/R/Statistics/pics/fig_1.png)  
+    
+Here I provide an example of how to use horseshoe priors in bayesian models with {brms}. 
+
+## Preliminaries  
+### Load libraries  
+
+```{r}
+library(tidyverse)
+library(brms)
+```
+
+```{r custom function(s)}
+scale_this <- function(x){
+  (x - mean(x, na.rm=TRUE)) / sd(x, na.rm=TRUE)
+}
+```
+
+### Simulate data    
+
+Here we simulate brain volume data based on estimates from Reite et al. (2010)  
+
+```{r}
+set.seed(404)
+sd <- 150
+
+df <- tibble(
+  brain_volume = rnorm(200, mean = 1200, sd = 150),
+  age          = round(runif(200, min = 40, max = 70), digits = 0),
+  sex          = factor(sample(c('male', 'female'), size = 200, replace = TRUE)),
+  does_sport   = factor(sample(c('yes', 'no'), size = 200, replace = TRUE)),
+  n_children   = sample(c(0,1,2,3,4), prob = c(.3, .4, .2, .08, .02), size = 200, replace = TRUE),
+  sleep_hrs    = round(rnorm(200, mean = 8, sd = 1), digits = 1),
+  vegetarian   = factor(sample(c('yes', 'no'), size = 200, replace = TRUE, prob = c(.1, .9))),
+  education    = sample(c(12, 16, 19, 9, 6), prob = c(.68, .2, .05, .05, .2), replace = TRUE, size = 200),
+  pets         = sample(c(0, 1, 2, 3), prob = c(.2, .4, .3, .1), size = 200, replace = TRUE),
+  unemployed   = factor(sample(c('yes', 'no'), prob = c(.2, .8), size = 200, replace = TRUE)),
+  drinks_week  = sample(0:12, size = 200, replace = TRUE),
+  smoke_day    = sample(0:10, size = 200, replace = TRUE),
+  instrument   = factor(sample(c('yes', 'no'), size = 200, replace = TRUE)),
+  weight       = round(rnorm(200, mean = 80, sd = 10), digits = 1),
+  height       = round(rnorm(200, mean = 165, sd = 10), digits = 1),
+  hrs_seated   = round(rnorm(200, mean = 5, sd = 1), digits = 1),
+  test_score   = round(rnorm(200, mean = 90, sd = 20), digits = 0),
+  chr_depression= factor(sample(c('yes', 'no'), size = 200, replace = TRUE))
+)
+
+df <- df %>% 
+  mutate(
+    brain_volume = case_when(
+     age > 60            ~ brain_volume - 100 * sample(0:3, size = 1),
+     age > 50 & age < 61 ~ brain_volume - 50  * sample(0:3, size = 1),
+     TRUE                ~ brain_volume - 50  * sample(-2:2, size = 1)
+    ),
+    brain_volume = ifelse(sex == 'male', 
+                          brain_volume + 60 * sample(0:1, size = 1),
+                          brain_volume - 60 * sample(0:1, size = 1)),
+    brain_volume = ifelse(chr_depression == 'yes', brain_volume - 100 * sample(1:4), brain_volume),
+    brain_volume = ifelse(sleep_hrs > 8, brain_volume + 100 * sample(0:2, size = 1), brain_volume)
+  )
+```  
+
+Such that now we have these data:  
+```{r}
+df %>% 
+  ggplot(aes(x = age, y = brain_volume, color = chr_depression)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Age", y  = "Brain volume (mm^3)", color = "Chronic depression",
+       title = "Simulated data") +
+  theme_light() +
+  scale_color_manual(values = c("#1E88E5", "#D41159")) # colorblind friendly 
+```
+
+Before beginning, we want to scale the continuous predictors:  
+```{r}
+df <- df %>% 
+  mutate(age = scale_this(age),
+         sleep_hrs = scale_this(sleep_hrs),
+         education = scale_this(education),
+         n_children = scale_this(n_children),
+         pets = scale_this(pets),
+         drinks_week = scale_this(drinks_week),
+         smoke_day = scale_this(smoke_day),
+         weight = scale_this(weight),
+         height = scale_this(height),
+         hrs_seated = scale_this(hrs_seated),
+         test_score = scale_this(test_score))
+```
+
+
+## Fit models
+
+Now let's fit some bayesian models. First we will fit a naive model (i.e. that does not account for spurious effects) and one with horseshoe prior.   
+
+### Naive model  
+```{r}
+naive <- brm(brain_volume ~ chr_depression * does_sport + age + sex + n_children + unemployed + sleep_hrs + vegetarian + 
+             education + pets + drinks_week + smoke_day + instrument + weight * height + hrs_seated + test_score,
+             family = "gaussian", data = df,
+             prior = c(prior(normal(1200, 100), class = Intercept),
+                        prior(normal(0, 100), class = b),
+                        prior(exponential(1), class = sigma)),
+             chains = 4, cores = 4, iter = 1000, warmup = 500, file = "models/vign_4.brm",
+             seed = 404)
+
+posterior_summary(naive)
+
+mcmc_plot(naive, variable = variables(naive)[2:20])
+```  
+
+We find the expected variables with a strong effect, but also at least two more: *education* and *hours sitting per day*. Since we simulated the data, we know these effects are spurious. Let's see what happens when we use a horseshoe prior.   
+
+### Horseshoe prior model   
+```{r}
+horse <- brm(brain_volume ~ chr_depression * does_sport + age + sex + n_children + unemployed + sleep_hrs + vegetarian + 
+             education + pets + drinks_week + smoke_day + instrument + weight * height + hrs_seated + test_score,
+             family = "gaussian", data = df,
+             prior = c(prior(normal(1200, 100), class = Intercept),
+                       prior(horseshoe(1), class = b), # the argument in the horseshoe function is usually set to 1 for optimal results
+                       prior(exponential(1), class = sigma)),
+             chains = 4, cores = 4, iter = 1000, warmup = 500, file = "models/vign_5.brm",
+             seed = 404)
+
+posterior_summary(horse)
+
+mcmc_plot(horse, variable = variables(horse)[2:20])
+```  
+  
+The spurious effects disappear thanks to our horseshoe prior and its elicited shrinkage towards 0!  
+
+### Model comparison  
+
+To confirm that the horseshoe prior model is indeed better than the naive one, we can compare the models using *loo_compare*.  
+```{r}
+naive <- add_criterion(naive, criterion = "loo")
+horse <- add_criterion(horse, criterion = "loo")
+
+comparison <- loo_compare(naive, horse, criterion = "loo")
+
+print(comparison, simplify = F)
+```  
+  
+In sum, it seems that the horseshoe prior is a useful tool to be able to include many predictor variables in our bayesian models while greatly reducing the risk of getting false positive-like effects. Consult the references and the {brms} manual for further information.   
+
+## References
+
+- Carvalho, Carlos & Polson, Nicholas & Scott, James. (2009). Handling Sparsity via the Horseshoe.. Journal of Machine Learning Research - Proceedings Track. 5. 73-80.  
+- Reite et al.: Brain size and brain/intracranial volume ratio in major mental illness. BMC Psychiatry 2010 10:79.
+
+
